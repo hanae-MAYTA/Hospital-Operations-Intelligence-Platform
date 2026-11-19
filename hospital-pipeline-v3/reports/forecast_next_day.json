@@ -1,0 +1,19 @@
+{
+  "date": "2024-05-08",
+  "forecast_admissions": 26.3,
+  "hospital_daily_capacity": 43,
+  "metrics": {
+    "Baseline naïve (= hier)": {
+      "MAE": 6.49,
+      "RMSE": 8.47
+    },
+    "Baseline moyenne 7 jours": {
+      "MAE": 4.82,
+      "RMSE": 6.34
+    },
+    "GradientBoosting": {
+      "MAE": 4.6,
+      "RMSE": 6.19
+    }
+  }
+}

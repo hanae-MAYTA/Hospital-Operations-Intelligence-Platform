@@ -1,0 +1,50 @@
+# Hospital Operations Intelligence Platform — Hanae MAYTA & Wafae ZALOUK
+# Lance PostgreSQL (Data Warehouse) + Airflow (orchestration).
+#   docker compose up -d      puis   http://localhost:8080   (admin / admin)
+services:
+  postgres:
+    image: postgres:16
+    container_name: hospital_postgres
+    environment:
+      POSTGRES_USER: hospital
+      POSTGRES_PASSWORD: hospital
+      POSTGRES_DB: hospital_dw
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/01-airflow-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hospital -d hospital_dw"]
+      interval: 5s
+      retries: 10
+
+  airflow:
+    image: apache/airflow:2.10.5-python3.11
+    container_name: hospital_airflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+    user: "${AIRFLOW_UID:-50000}:0"
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://hospital:hospital@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/project/airflow/dags
+      AIRFLOW__WEBSERVER__SECRET_KEY: hospital-demo-secret
+      DB_HOST: postgres            # dans Docker, la base s'appelle "postgres" (pas localhost)
+      PYTHONPATH: /opt/project
+      _PIP_ADDITIONAL_REQUIREMENTS: "pandas scikit-learn matplotlib python-dotenv"
+    volumes:
+      - ./:/opt/project            # tout le projet est visible dans le conteneur
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "airflow db migrate &&
+               (airflow users create --username admin --password admin --firstname Admin
+                --lastname Hospital --role Admin --email admin@example.com || true) &&
+               (airflow scheduler &) &&
+               exec airflow webserver"
+
+volumes:
+  pgdata:

@@ -1,0 +1,13 @@
+# Couleurs de l'interface (bleu principal, accents rouges) — Hanae MAYTA & Wafae ZALOUK
+[theme]
+base = "light"
+primaryColor = "#2B6CB0"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#EEF4FB"
+textColor = "#1B2A3A"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "viewer"
